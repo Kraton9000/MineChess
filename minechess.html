@@ -1,0 +1,70 @@
+<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;">
+</canvas>
+
+<script>
+	var ctx = document.getElementById("ctx").getContext("2d");
+	
+	Tile = function(x, y){
+		var tile = {
+			type:1,
+			x_start:x,
+			y_start:y
+		};
+		return tile;
+	}
+
+	document.onclick = function(mouse){
+		for (i = 0; i < 16; i++){
+			for (j = 0; j < 16; j++){
+				if (mouse.clientX >= board[i][j].x_start && mouse.clientX <= board[i][j].x_start + 29 && mouse.clientY >= board[i][j].y_start && mouse.clientY <= board[i][j].y_start + 29){
+					console.log(i + ", " + j);
+					board[i][j].type = 0;
+					drawBoard(board);
+				}
+			}
+		}
+	}
+
+	document.oncontextmenu = function(mouse){
+		for (i = 0; i < 16; i++){
+			for (j = 0; j < 16; j++){
+				if (mouse.clientX >= board[i][j].x_start && mouse.clientX <= board[i][j].x_start + 29 && mouse.clientY >= board[i][j].y_start && mouse.clientY <= board[i][j].y_start + 29){
+					console.log(i + ", " + j);
+					board[i][j].type = 2;
+					drawBoard(board);
+				}
+			}
+		}
+	}
+
+	createBoard = function(){
+		var board = [];
+		for (i = 0; i < 16; i++){
+			board[i] = [];
+			for (j = 0; j < 16; j++){
+				board[i][j] = Tile(1 + 30 * j, 1 + 30 * i);
+			}
+		}
+		return board;
+	}
+
+	drawBoard = function(board){
+		ctx.clearRect(0, 0, 500, 500);
+		for (i = 0; i < 16; i++){
+			for (j = 0; j < 16; j++){
+				if (board[i][j].type == 2){
+					ctx.fillStyle = 'red';
+				}
+				if (board[i][j].type > 0){
+					ctx.fillRect(board[i][j].x_start, board[i][j].y_start, 29, 29);
+				}
+				ctx.fillStyle = 'black';
+			}
+		}
+	}
+
+	var board = createBoard();
+	drawBoard(board);
+
+
+</script>
