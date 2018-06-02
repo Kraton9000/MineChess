@@ -2,6 +2,7 @@
 </canvas>
 
 <script>
+
 	var ctx = document.getElementById("ctx").getContext("2d");
 	
 	Tile = function(x, y){
@@ -91,11 +92,27 @@
 			board[Math.floor(spot / 16)][spot % 16].status = 2;
 			mine_spots.push(spot);
 		}
-		for (var i = 1; i < 15; i++){
-			for (var j = 1; j < 15; j++){
+		for (var i = 0; i < 16; i++){
+			for (var j = 0; j < 16; j++){
 				board[i][j].surround = checkSurround(board, i, j);
-				if (board[i][j].surround == 0){
-					board[i][j].status = 0;
+			}
+		}
+		mine_spots = mine_spots.splice(0, 9);
+		var encountered = [];
+		openSurround(board, start_row, start_col, encountered);
+	}
+
+	openSurround = function(board, x, y, encountered){
+		if (!encountered.includes(board[x][y]) && board[x][y].surround == 0){
+			encountered.push(board[x][y]);
+			for (var i = 0; i < 3; i++){
+				for (var j = 0; j < 3; j++){
+					if (x-1+i >= 0 && x-1+i < 16 && y-1+j >= 0 && y-1+j < 16){
+						if (board[x-1+i][y-1+j].mine == 0){
+							board[x-1+i][y-1+j].status = 0;
+							openSurround(board, x-1+i, y-1+j, encountered);
+						}
+					}
 				}
 			}
 		}
@@ -105,8 +122,10 @@
 		var count = 0;
 		for (var i = 0; i < 3; i++){
 			for (var j = 0; j < 3; j++){
-				if (board[x-1+i][y-1+j].mine == 1){
-					count++;
+				if (x-1+i >= 0 && x-1+i < 16 && y-1+j >= 0 && y-1+j < 16){
+					if (board[x-1+i][y-1+j].mine == 1){
+						count++;
+					}
 				}
 			}
 		}
