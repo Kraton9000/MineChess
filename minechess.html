@@ -6,7 +6,9 @@
 	
 	Tile = function(x, y){
 		var tile = {
-			type:1,
+			mine:0,
+			status:1,
+			surround:0,
 			x_start:x,
 			y_start:y
 		};
@@ -14,11 +16,15 @@
 	}
 
 	document.onclick = function(mouse){
-		for (i = 0; i < 16; i++){
-			for (j = 0; j < 16; j++){
+		for (var i = 0; i < 16; i++){
+			for (var j = 0; j < 16; j++){
 				if (mouse.clientX >= board[i][j].x_start && mouse.clientX <= board[i][j].x_start + 29 && mouse.clientY >= board[i][j].y_start && mouse.clientY <= board[i][j].y_start + 29){
 					console.log(i + ", " + j);
-					board[i][j].type = 0;
+					board[i][j].status = 0;
+					if (!game_start){
+						game_start = true;
+						createMines(board, i, j);
+					}
 					drawBoard(board);
 				}
 			}
@@ -26,11 +32,11 @@
 	}
 
 	document.oncontextmenu = function(mouse){
-		for (i = 0; i < 16; i++){
-			for (j = 0; j < 16; j++){
+		for (var i = 0; i < 16; i++){
+			for (var j = 0; j < 16; j++){
 				if (mouse.clientX >= board[i][j].x_start && mouse.clientX <= board[i][j].x_start + 29 && mouse.clientY >= board[i][j].y_start && mouse.clientY <= board[i][j].y_start + 29){
 					console.log(i + ", " + j);
-					board[i][j].type = 2;
+					board[i][j].status = 2;
 					drawBoard(board);
 				}
 			}
@@ -39,9 +45,9 @@
 
 	createBoard = function(){
 		var board = [];
-		for (i = 0; i < 16; i++){
+		for (var i = 0; i < 16; i++){
 			board[i] = [];
-			for (j = 0; j < 16; j++){
+			for (var j = 0; j < 16; j++){
 				board[i][j] = Tile(1 + 30 * j, 1 + 30 * i);
 			}
 		}
@@ -50,19 +56,64 @@
 
 	drawBoard = function(board){
 		ctx.clearRect(0, 0, 500, 500);
-		for (i = 0; i < 16; i++){
-			for (j = 0; j < 16; j++){
-				if (board[i][j].type == 2){
+		for (var i = 0; i < 16; i++){
+			for (var j = 0; j < 16; j++){
+				var tile = board[i][j]
+				if (tile.status == 2){
 					ctx.fillStyle = 'red';
+				}else if (tile.status == 3){
+					ctx.fillStyle = 'blue';
 				}
-				if (board[i][j].type > 0){
-					ctx.fillRect(board[i][j].x_start, board[i][j].y_start, 29, 29);
+				if (tile.status > 0){
+					ctx.fillRect(tile.x_start, tile.y_start, 29, 29);
+				}else{
+					ctx.fillText(tile.surround, tile.x_start + 15, tile.y_start + 15);
 				}
 				ctx.fillStyle = 'black';
 			}
 		}
 	}
 
+	createMines = function(board, start_row, start_col){
+		var mine_count = 32;
+		var mine_spots = []
+		for (i = 0; i < 3; i++){
+			for (j = 0; j < 3; j++){
+				mine_spots.push((start_row-1+i)*16+(start_col-1+j))
+			}
+		}
+		for (var i = 0; i < mine_count; i++){
+			var spot = Math.floor(Math.random() * 256);
+			while (mine_spots.includes(spot)){
+				spot = Math.floor(Math.random() * 256);
+			}
+			board[Math.floor(spot / 16)][spot % 16].mine = 1;
+			board[Math.floor(spot / 16)][spot % 16].status = 2;
+			mine_spots.push(spot);
+		}
+		for (var i = 1; i < 15; i++){
+			for (var j = 1; j < 15; j++){
+				board[i][j].surround = checkSurround(board, i, j);
+				if (board[i][j].surround == 0){
+					board[i][j].status = 0;
+				}
+			}
+		}
+	}
+
+	checkSurround = function(board, x, y){
+		var count = 0;
+		for (var i = 0; i < 3; i++){
+			for (var j = 0; j < 3; j++){
+				if (board[x-1+i][y-1+j].mine == 1){
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+
+	var game_start = false;
 	var board = createBoard();
 	drawBoard(board);
 
