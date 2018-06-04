@@ -1,4 +1,4 @@
-<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;">
+<canvas id="ctx" width="600" height="500" style="border:1px solid #000000;">
 </canvas>
 
 <script>
@@ -16,7 +16,18 @@
 		return tile;
 	}
 
-	document.onclick = function(mouse){
+	Piece = function(name, colour, x, y){
+		var piece = {
+			name:name,
+			alive:true,
+			colour:colour,
+			x_start:x,
+			y_start:y
+		};
+		return piece;
+	}
+
+	leftClickTile = function(mouse){
 		for (var i = 0; i < board_size; i++){
 			for (var j = 0; j < board_size; j++){
 				if (mouse.clientX >= board[i][j].x_start && mouse.clientX <= board[i][j].x_start + tile_size - 1 && mouse.clientY >= board[i][j].y_start && mouse.clientY <= board[i][j].y_start + tile_size - 1){
@@ -35,6 +46,29 @@
 				}
 			}
 		}
+	}
+
+
+	leftClickPiece = function(mouse){
+		if (hoverPiece == null){
+			for (var i = 0; i < roster.length; i++){
+				if (mouse.clientX >= roster[i].x_start && mouse.clientX <= roster[i].x_start + tile_size - 1 && mouse.clientY >= roster[i].y_start && mouse.clientY <= roster[i].y_start + tile_size - 1){
+					hoverPiece = roster[i];
+					break;
+				}
+			}
+		}else{
+			hoverPiece.x_start = mouse.clientX;
+			hoverPiece.y_start = mouse.clientY;
+			hoverPiece = null;
+			drawBoard(board);
+		}
+		console.log(hoverPiece);
+	}
+
+	document.onclick = function(mouse){
+		leftClickTile(mouse);
+		leftClickPiece(mouse);
 	}
 
 	document.oncontextmenu = function(mouse){
@@ -61,7 +95,7 @@
 	}
 
 	drawBoard = function(board){
-		ctx.clearRect(0, 0, 500, 500);
+		ctx.clearRect(0, 0, 600, 500);
 		for (var i = 0; i < board_size; i++){
 			for (var j = 0; j < board_size; j++){
 				var tile = board[i][j]
@@ -78,6 +112,11 @@
 				ctx.fillStyle = 'black';
 			}
 		}
+		for (var i = 0; i < roster.length; i++){
+			ctx.fillStyle = roster[i].colour;
+			ctx.fillRect(roster[i].x_start, roster[i].y_start, tile_size - 1, tile_size - 1);
+		}
+		ctx.fillStyle = 'black';
 	}
 
 	createMines = function(board, start_row, start_col){
@@ -134,11 +173,24 @@
 		return count;
 	}
 
+	loadChessPieces = function(){
+		var roster = [];
+		roster.push(Piece("Pawn", "pink", 550, 10 + 0*40));
+		roster.push(Piece("Knight", "green", 550, 10 + 1*40));
+		roster.push(Piece("Bishop", "blue", 550, 10 + 2*40));
+		roster.push(Piece("Rook", 'red', 550, 10 + 3*40));
+		roster.push(Piece("Queen", 'yellow', 550, 10 + 4*40));
+		roster.push(Piece("King", 'orange', 550, 10 + 5*40));
+		return roster;
+	}
+
 	var game_start = false;
 	var board_size = 16;
 	var tile_size = 30;
 	var mine_count = 40;
+	var hoverPiece = null;
 	var board = createBoard();
+	var roster = loadChessPieces();
 	drawBoard(board);
 
 
