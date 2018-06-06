@@ -219,7 +219,7 @@
 	}
 
 	displayValidMoves = function(board, piece){
-		if (piece.name == "Rook"){
+		if (piece.name == "Rook" || piece.name == "Queen"){
 			for (i = 0; i < board_size; i++){
 				if (board[i][piece.col].status != 0 && i != piece.row){
 					board[i][piece.col].status = 2;
@@ -229,6 +229,27 @@
 				if (board[piece.row][i].status != 0 && i != piece.col){
 					board[piece.row][i].status = 2;
 				}
+			}
+		}
+		if (piece.name == "Bishop" || piece.name == "Queen"){
+			var start_col = Math.max(piece.col - piece.row, 0);
+			var start_row = Math.max(piece.row - piece.col, 0);
+			while(start_row < board_size && start_col < board_size){
+				if (board[start_row][start_col].status != 0 && start_row != piece.row){
+					board[start_row][start_col].status = 2;
+				}
+				start_row++;
+				start_col++;
+			}
+			start_col = Math.min(piece.col + piece.row, board_size - 1);
+			start_row = Math.max(piece.col - (16 - 1 - piece.row), 0);
+			console.log(start_row, start_col);
+			while(start_row < board_size && start_col >= 0){
+				if (board[start_row][start_col].status != 0 && start_row != piece.row){
+					board[start_row][start_col].status = 2;
+				}
+				start_row++;
+				start_col--;
 			}
 		}
 	}
